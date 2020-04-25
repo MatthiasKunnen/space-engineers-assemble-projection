@@ -56,21 +56,15 @@ namespace MeridiusIX{
 				projectorButtonB.Action = ProjectorActionB;
 				MyAPIGateway.TerminalControls.AddControl<IMyProjector>(projectorButtonB);
 
-				List<MyBlueprintDefinitionBase> blueprintList = MyDefinitionManager.Static.GetBlueprintDefinitions().Where(x => x.Results[0].Id.TypeId != typeof(MyObjectBuilder_Ore)).ToList();
-
-				foreach(var blueprint in blueprintList){
-
-					if(blueprint.Results[0].Id.TypeId.ToString().Contains("MyObjectBuilder_Component") == true){
-
+				MyDefinitionManager.Static.GetBlueprintDefinitions()
+					.Where(x => x.Results[0].Id.TypeId != typeof(MyObjectBuilder_Ore))
+					.Where(blueprint => blueprint.Results[0].Id.TypeId.ToString().Contains("MyObjectBuilder_Component"))
+					.ToList()
+					.ForEach(blueprint => {
 						if(blueprintDictionary.ContainsKey(blueprint.Results[0].Id.SubtypeId.ToString()) == false){
-
 							blueprintDictionary.Add(blueprint.Results[0].Id.SubtypeId.ToString(), blueprint.Id.SubtypeId.ToString());
-
 						}
-
-					}
-
-				}
+					});
 
 				entity.Delete();
 				scriptInitialized = true;
