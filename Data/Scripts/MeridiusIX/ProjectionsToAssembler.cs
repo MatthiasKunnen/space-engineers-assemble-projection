@@ -221,25 +221,9 @@ namespace MeridiusIX {
 					continue;
 				}
 
-				var blockInv = block.GetInventory(0);
-				var blockItems = blockInv.GetItems();
-
-				foreach (var item in blockItems) {
-					if (item.Content.TypeId.ToString().Contains("Component") == true) {
-						var subtype = item.Content.SubtypeId.ToString();
-						var amount = (int)item.Amount;
-
-						if (resultDict.ContainsKey(subtype) == true) {
-							resultDict[subtype] += amount;
-						} else {
-							resultDict.Add(subtype, amount);
-						}
-					}
-				}
-
-				if (block.InventoryCount > 1) {
-					blockInv = block.GetInventory(1);
-					blockItems = blockInv.GetItems();
+				for (var i = 0; i < block.InventoryCount; i++) {
+					var blockInv = block.GetInventory(i);
+					var blockItems = blockInv.GetItems();
 
 					foreach (var item in blockItems) {
 						if (item.Content.TypeId.ToString().Contains("Component") == true) {
