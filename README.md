@@ -1,3 +1,11 @@
+# Assemble projections - Space Engineers
+This mod allows you to quickly queue the components necessary to build a blueprint.
+
+# Forked from
+This is a fork of the
+[_Projections To Assembler_ mod](https://steamcommunity.com/sharedfiles/filedetails/?id=1289485324)
+by [Meridius_IX / Lucas](https://steamcommunity.com/id/meridius_ix).
+
 # Development
 - Download and install Visual Studio
 - Fork this repository and clone it
