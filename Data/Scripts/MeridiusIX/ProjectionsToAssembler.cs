@@ -175,36 +175,13 @@ namespace MeridiusIX{
 
 			var cubeGrid = block.CubeGrid;
 			var gts = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(cubeGrid);
-			IMyAssembler primaryAssembler = null;
 			var assemblerList = new List<IMyAssembler>();
 			gts.GetBlocksOfType<IMyAssembler>(assemblerList);
+			block.Storage.TryGetValue(storageKey, out string selectedAssembler);
 
-			for(int i = assemblerList.Count - 1; i >= 0; i--){
-
-				var assembler = assemblerList[i];
-				var outputValue = "";
-				block.Storage.TryGetValue(storageKey, out outputValue);
-
-				if(assembler.IsWorking == false || assembler.IsFunctional == false || assembler.Mode == Sandbox.ModAPI.Ingame.MyAssemblerMode.Disassembly){
-
-					if(outputValue == assembler.EntityId.ToString()){
-
-						return; //Selected Assember is Not Working
-
-					}
-
-					continue;
-
-				}
-
-				if(outputValue == assembler.EntityId.ToString()){
-
-					primaryAssembler = assembler;
-					break;
-
-				}
-
-			}
+			var primaryAssembler = assemblerList.FirstOrDefault(assembler => {
+				return assembler.IsWorking && assembler.IsFunctional && assembler.Mode != Sandbox.ModAPI.Ingame.MyAssemblerMode.Disassembly && selectedAssembler == assembler.EntityId.ToString();
+			});
 
 			if(primaryAssembler == null){
 
