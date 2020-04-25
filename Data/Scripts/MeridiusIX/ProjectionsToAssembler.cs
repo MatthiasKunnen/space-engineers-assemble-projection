@@ -155,27 +155,21 @@ namespace MeridiusIX {
 			if (allBlocks == false) {
 				var existingParts = GetExistingParts(assembler);
 
-				foreach (var component in existingParts.Keys) {
-					if (queueDictionary.ContainsKey(component) == true) {
-						if (existingParts[component] >= queueDictionary[component]) {
-							queueDictionary[component] = 0;
-						} else {
-							queueDictionary[component] -= existingParts[component];
-						}
+				foreach (var component in existingParts.Keys.Where(component => queueDictionary.ContainsKey(component))) {
+					if (existingParts[component] >= queueDictionary[component]) {
+						queueDictionary[component] = 0;
+					} else {
+						queueDictionary[component] -= existingParts[component];
 					}
 				}
 			}
 
-			foreach (var component in queueDictionary.Keys) {
-				if (blueprintDictionary.ContainsKey(component) == true) {
-					var blueprint = new MyDefinitionId();
+			foreach (var component in queueDictionary.Keys.Where(component => blueprintDictionary.ContainsKey(component))) {
+				var blueprint = new MyDefinitionId();
+				var definition = $"MyObjectBuilder_BlueprintDefinition/{blueprintDictionary[component]}";
 
-					if (MyDefinitionId.TryParse("MyObjectBuilder_BlueprintDefinition/" + blueprintDictionary[component], out blueprint) == true) {
-
-						if (assembler.CanUseBlueprint(blueprint) == true) {
-							assembler.AddQueueItem(blueprint, (MyFixedPoint)queueDictionary[component]);
-						}
-					}
+				if (MyDefinitionId.TryParse(definition, out blueprint) && assembler.CanUseBlueprint(blueprint)) {
+					assembler.AddQueueItem(blueprint, (MyFixedPoint)queueDictionary[component]);
 				}
 			}
 		}
@@ -190,11 +184,8 @@ namespace MeridiusIX {
 				var blockDefininition = block.BlockDefinition as MyCubeBlockDefinition;
 				var blockcomponents = blockDefininition.Components;
 
-				if (allBlocks == false) {
-
-					if (projector.CanBuild(block, true) == BuildCheckResult.AlreadyBuilt) {
-						continue;
-					}
+				if (allBlocks == false && projector.CanBuild(block, true) == BuildCheckResult.AlreadyBuilt) {
+					continue;
 				}
 
 				foreach (var component in blockcomponents) {
@@ -216,25 +207,19 @@ namespace MeridiusIX {
 			var blockList = new List<IMyTerminalBlock>();
 			gts.GetBlocksOfType<IMyTerminalBlock>(blockList);
 
-			foreach (var block in blockList) {
-				if (block.HasInventory == false) {
-					continue;
-				}
-
+			foreach (var block in blockList.Where(block => block.HasInventory)) {
 				for (var i = 0; i < block.InventoryCount; i++) {
 					var blockInv = block.GetInventory(i);
 					var blockItems = blockInv.GetItems();
 
-					foreach (var item in blockItems) {
-						if (item.Content.TypeId.ToString().Contains("Component") == true) {
-							var subtype = item.Content.SubtypeId.ToString();
-							var amount = (int)item.Amount;
+					foreach (var item in blockItems.Where(item => item.Content.TypeId.ToString().Contains("Component"))) {
+						var subtype = item.Content.SubtypeId.ToString();
+						var amount = (int)item.Amount;
 
-							if (resultDict.ContainsKey(subtype) == true) {
-								resultDict[subtype] += amount;
-							} else {
-								resultDict.Add(subtype, amount);
-							}
+						if (resultDict.ContainsKey(subtype) == true) {
+							resultDict[subtype] += amount;
+						} else {
+							resultDict.Add(subtype, amount);
 						}
 					}
 				}
