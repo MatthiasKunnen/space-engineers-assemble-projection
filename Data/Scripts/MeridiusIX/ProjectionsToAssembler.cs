@@ -179,7 +179,7 @@ namespace MeridiusIX{
 
 			}
 
-			var cubeGrid = (VRage.Game.ModAPI.IMyCubeGrid)block.CubeGrid;
+			var cubeGrid = block.CubeGrid;
 			var gts = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(cubeGrid);
 			IMyAssembler primaryAssembler = null;
 			var assemblerList = new List<IMyAssembler>();
@@ -188,7 +188,7 @@ namespace MeridiusIX{
 			for(int i = assemblerList.Count - 1; i >= 0; i--){
 
 				var assembler = assemblerList[i];
-				string outputValue = "";
+				var outputValue = "";
 				block.Storage.TryGetValue(storageKey, out outputValue);
 
 				if(assembler.IsWorking == false || assembler.IsFunctional == false || assembler.Mode == Sandbox.ModAPI.Ingame.MyAssemblerMode.Disassembly){
@@ -248,7 +248,7 @@ namespace MeridiusIX{
 
 				if(blueprintDictionary.ContainsKey(component) == true){
 
-					MyDefinitionId blueprint = new MyDefinitionId();
+					var blueprint = new MyDefinitionId();
 
 					if(MyDefinitionId.TryParse("MyObjectBuilder_BlueprintDefinition/" + blueprintDictionary[component], out blueprint) == true){
 
