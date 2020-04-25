@@ -75,12 +75,10 @@ namespace MeridiusIX {
 
 			if (block.Storage == null) {
 				block.Storage = new MyModStorageComponent();
+			} else if (block.Storage.ContainsKey(storageKey) == true) {
+				selectedAssemblerId = block.Storage[storageKey];
 			} else {
-				if (block.Storage.ContainsKey(storageKey) == true) {
-					selectedAssemblerId = block.Storage[storageKey];
-				} else {
-					block.Storage.Add(storageKey, "");
-				}
+				block.Storage.Add(storageKey, "");
 			}
 
 			bool foundSelected = false;
