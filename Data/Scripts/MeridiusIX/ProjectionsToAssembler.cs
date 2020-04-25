@@ -161,13 +161,7 @@ namespace MeridiusIX{
 
 			var projector = block as IMyProjector;
 
-			if(projector == null || block.IsWorking == false){
-
-				return;
-
-			}
-
-			if(projector.ProjectedGrid == null){
+			if(projector == null || block.IsWorking == false || projector.ProjectedGrid == null) {
 
 				return;
 
