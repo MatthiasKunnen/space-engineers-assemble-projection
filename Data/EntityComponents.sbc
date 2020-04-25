@@ -1,0 +1,13 @@
+﻿<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EntityComponents>
+    <EntityComponent xsi:type="MyObjectBuilder_ModStorageComponentDefinition">
+      <Id>
+        <TypeId>ModStorageComponent</TypeId>
+        <SubtypeId>ProjectionsToAssembler</SubtypeId>
+      </Id>
+      <RegisteredStorageGuids>
+        <guid>1C45E98F-30A7-41BF-A15B-ECC475302BFE</guid>
+      </RegisteredStorageGuids>
+    </EntityComponent>
+  </EntityComponents>
+</Definitions>
