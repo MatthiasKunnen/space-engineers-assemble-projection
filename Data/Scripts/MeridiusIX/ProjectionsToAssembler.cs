@@ -13,19 +13,19 @@ using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
-namespace MeridiusIX{
+namespace MeridiusIX {
 
 	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
 
-	public class ProjectionsToAssembler : MySessionComponentBase{
+	public class ProjectionsToAssembler : MySessionComponentBase {
 
 		Dictionary<string, string> blueprintDictionary = new Dictionary<string, string>(); //Component Name (SubtypeId) & Blueprint Name (SubtypeId)
 		bool scriptInitialized = false;
 		Guid storageKey = new Guid("1C45E98F-30A7-41BF-A15B-ECC475302BFE");
 
-		public override void UpdateBeforeSimulation(){
+		public override void UpdateBeforeSimulation() {
 
-			if(scriptInitialized == false/* && MyAPIGateway.Multiplayer.IsServer == true*/){
+			if (scriptInitialized == false/* && MyAPIGateway.Multiplayer.IsServer == true*/) {
 
 				//create dummy projector/pb
 
@@ -61,7 +61,7 @@ namespace MeridiusIX{
 					.Where(blueprint => blueprint.Results[0].Id.TypeId.ToString().Contains("MyObjectBuilder_Component"))
 					.ToList()
 					.ForEach(blueprint => {
-						if(blueprintDictionary.ContainsKey(blueprint.Results[0].Id.SubtypeId.ToString()) == false){
+						if (blueprintDictionary.ContainsKey(blueprint.Results[0].Id.SubtypeId.ToString()) == false) {
 							blueprintDictionary.Add(blueprint.Results[0].Id.SubtypeId.ToString(), blueprint.Id.SubtypeId.ToString());
 						}
 					});
@@ -73,24 +73,24 @@ namespace MeridiusIX{
 
 		}
 
-		void AssemblerListCreate(IMyTerminalBlock block, List<MyTerminalControlListBoxItem> itemList, List<MyTerminalControlListBoxItem> selectedItems){
+		void AssemblerListCreate(IMyTerminalBlock block, List<MyTerminalControlListBoxItem> itemList, List<MyTerminalControlListBoxItem> selectedItems) {
 
 			var gts = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(block.SlimBlock.CubeGrid);
 			var assemblerList = new List<IMyAssembler>();
 			gts.GetBlocksOfType<IMyAssembler>(assemblerList);
 			string selectedAssemblerId = "";
 
-			if(block.Storage == null){
+			if (block.Storage == null) {
 
 				block.Storage = new MyModStorageComponent();
 
-			}else{
+			} else {
 
-				if(block.Storage.ContainsKey(storageKey) == true){
+				if (block.Storage.ContainsKey(storageKey) == true) {
 
 					selectedAssemblerId = block.Storage[storageKey];
 
-				}else{
+				} else {
 
 					block.Storage.Add(storageKey, "");
 
@@ -100,20 +100,20 @@ namespace MeridiusIX{
 
 			bool foundSelected = false;
 
-			if(assemblerList.Count == 0){
+			if (assemblerList.Count == 0) {
 
 				block.Storage[storageKey] = "";
 				return;
 
 			}
 
-			foreach(var assembler in assemblerList){
+			foreach (var assembler in assemblerList) {
 
 				var assemblerId = assembler.EntityId.ToString();
 				var listItem = new MyTerminalControlListBoxItem(MyStringId.GetOrCompute(assembler.CustomName), MyStringId.GetOrCompute(""), assemblerId);
 				itemList.Add(listItem);
 
-				if(assemblerId == selectedAssemblerId && foundSelected == false){
+				if (assemblerId == selectedAssemblerId && foundSelected == false) {
 
 					foundSelected = true;
 					selectedItems.Add(listItem);
@@ -122,7 +122,7 @@ namespace MeridiusIX{
 
 			}
 
-			if(selectedItems.Count == 0 && itemList.Count > 0 && foundSelected == false){
+			if (selectedItems.Count == 0 && itemList.Count > 0 && foundSelected == false) {
 
 				selectedItems.Add(itemList[0]);
 				var idName = itemList[0].UserData as string;
@@ -132,9 +132,9 @@ namespace MeridiusIX{
 
 		}
 
-		void AssemblerListSelect(IMyTerminalBlock block, List<MyTerminalControlListBoxItem> selectedItems){
+		void AssemblerListSelect(IMyTerminalBlock block, List<MyTerminalControlListBoxItem> selectedItems) {
 
-			if(selectedItems.Count == 0){
+			if (selectedItems.Count == 0) {
 
 				return;
 
@@ -145,23 +145,23 @@ namespace MeridiusIX{
 
 		}
 
-		void ProjectorAction(IMyTerminalBlock block){
+		void ProjectorAction(IMyTerminalBlock block) {
 
 			ProcessProjection(block, true);
 
 		}
 
-		void ProjectorActionB(IMyTerminalBlock block){
+		void ProjectorActionB(IMyTerminalBlock block) {
 
 			ProcessProjection(block, false);
 
 		}
 
-		void ProcessProjection(IMyTerminalBlock block, bool allBlocks){
+		void ProcessProjection(IMyTerminalBlock block, bool allBlocks) {
 
 			var projector = block as IMyProjector;
 
-			if(projector == null || block.IsWorking == false || projector.ProjectedGrid == null) {
+			if (projector == null || block.IsWorking == false || projector.ProjectedGrid == null) {
 
 				return;
 
@@ -177,7 +177,7 @@ namespace MeridiusIX{
 				return assembler.IsWorking && assembler.IsFunctional && assembler.Mode != Sandbox.ModAPI.Ingame.MyAssemblerMode.Disassembly && selectedAssembler == assembler.EntityId.ToString();
 			});
 
-			if(primaryAssembler == null){
+			if (primaryAssembler == null) {
 
 				return;
 
@@ -185,19 +185,19 @@ namespace MeridiusIX{
 
 			var queueDictionary = GetBlocksForQueue(projector, allBlocks);
 
-			if(allBlocks == false){
+			if (allBlocks == false) {
 
 				var existingParts = GetExistingParts(primaryAssembler);
 
-				foreach(var component in existingParts.Keys){
+				foreach (var component in existingParts.Keys) {
 
-					if(queueDictionary.ContainsKey(component) == true){
+					if (queueDictionary.ContainsKey(component) == true) {
 
-						if(existingParts[component] >= queueDictionary[component]){
+						if (existingParts[component] >= queueDictionary[component]) {
 
 							queueDictionary[component] = 0;
 
-						}else{
+						} else {
 
 							queueDictionary[component] -= existingParts[component];
 
@@ -209,15 +209,15 @@ namespace MeridiusIX{
 
 			}
 
-			foreach(var component in queueDictionary.Keys){
+			foreach (var component in queueDictionary.Keys) {
 
-				if(blueprintDictionary.ContainsKey(component) == true){
+				if (blueprintDictionary.ContainsKey(component) == true) {
 
 					var blueprint = new MyDefinitionId();
 
-					if(MyDefinitionId.TryParse("MyObjectBuilder_BlueprintDefinition/" + blueprintDictionary[component], out blueprint) == true){
+					if (MyDefinitionId.TryParse("MyObjectBuilder_BlueprintDefinition/" + blueprintDictionary[component], out blueprint) == true) {
 
-						if(primaryAssembler.CanUseBlueprint(blueprint) == true){
+						if (primaryAssembler.CanUseBlueprint(blueprint) == true) {
 
 							primaryAssembler.AddQueueItem(blueprint, (MyFixedPoint)queueDictionary[component]);
 
@@ -231,21 +231,21 @@ namespace MeridiusIX{
 
 		}
 
-		Dictionary<string, int> GetBlocksForQueue(IMyProjector projector, bool allBlocks){
+		Dictionary<string, int> GetBlocksForQueue(IMyProjector projector, bool allBlocks) {
 
 			var resultDictionary = new Dictionary<string, int>();
 			var projectedGrid = projector.ProjectedGrid;
 			var blockList = new List<IMySlimBlock>();
 			projectedGrid.GetBlocks(blockList);
 
-			foreach(var block in blockList){
+			foreach (var block in blockList) {
 
 				var blockDefininition = block.BlockDefinition as MyCubeBlockDefinition;
 				var blockcomponents = blockDefininition.Components;
 
-				if(allBlocks == false){
+				if (allBlocks == false) {
 
-					if(projector.CanBuild(block, true) == BuildCheckResult.AlreadyBuilt){
+					if (projector.CanBuild(block, true) == BuildCheckResult.AlreadyBuilt) {
 
 						continue;
 
@@ -253,13 +253,13 @@ namespace MeridiusIX{
 
 				}
 
-				foreach(var component in blockcomponents){
+				foreach (var component in blockcomponents) {
 
-					if(resultDictionary.ContainsKey(component.Definition.Id.SubtypeId.ToString()) == true){
+					if (resultDictionary.ContainsKey(component.Definition.Id.SubtypeId.ToString()) == true) {
 
 						resultDictionary[component.Definition.Id.SubtypeId.ToString()] += component.Count;
 
-					}else{
+					} else {
 
 						resultDictionary.Add(component.Definition.Id.SubtypeId.ToString(), component.Count);
 
@@ -273,7 +273,7 @@ namespace MeridiusIX{
 
 		}
 
-		Dictionary<string, int> GetExistingParts(IMyAssembler assembler){
+		Dictionary<string, int> GetExistingParts(IMyAssembler assembler) {
 
 			var resultDict = new Dictionary<string, int>();
 			var cubeGrid = (VRage.Game.ModAPI.IMyCubeGrid)assembler.CubeGrid;
@@ -281,9 +281,9 @@ namespace MeridiusIX{
 			var blockList = new List<IMyTerminalBlock>();
 			gts.GetBlocksOfType<IMyTerminalBlock>(blockList);
 
-			foreach(var block in blockList){
+			foreach (var block in blockList) {
 
-				if(block.HasInventory == false){
+				if (block.HasInventory == false) {
 
 					continue;
 
@@ -292,18 +292,18 @@ namespace MeridiusIX{
 				var blockInv = block.GetInventory(0);
 				var blockItems = blockInv.GetItems();
 
-				foreach(var item in blockItems){
+				foreach (var item in blockItems) {
 
-					if(item.Content.TypeId.ToString().Contains("Component") == true){
+					if (item.Content.TypeId.ToString().Contains("Component") == true) {
 
 						var subtype = item.Content.SubtypeId.ToString();
 						var amount = (int)item.Amount;
 
-						if(resultDict.ContainsKey(subtype) == true){
+						if (resultDict.ContainsKey(subtype) == true) {
 
 							resultDict[subtype] += amount;
 
-						}else{
+						} else {
 
 							resultDict.Add(subtype, amount);
 
@@ -313,23 +313,23 @@ namespace MeridiusIX{
 
 				}
 
-				if(block.InventoryCount > 1){
+				if (block.InventoryCount > 1) {
 
 					blockInv = block.GetInventory(1);
 					blockItems = blockInv.GetItems();
 
-					foreach(var item in blockItems){
+					foreach (var item in blockItems) {
 
-						if(item.Content.TypeId.ToString().Contains("Component") == true){
+						if (item.Content.TypeId.ToString().Contains("Component") == true) {
 
 							var subtype = item.Content.SubtypeId.ToString();
 							var amount = (int)item.Amount;
 
-							if(resultDict.ContainsKey(subtype) == true){
+							if (resultDict.ContainsKey(subtype) == true) {
 
 								resultDict[subtype] += amount;
 
-							}else{
+							} else {
 
 								resultDict.Add(subtype, amount);
 
