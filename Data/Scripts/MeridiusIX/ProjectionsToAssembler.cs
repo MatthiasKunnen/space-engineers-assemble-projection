@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
@@ -51,6 +52,18 @@ namespace MeridiusIX {
 				projectorButtonB.Title = MyStringId.GetOrCompute("Send Missing Items");
 				projectorButtonB.Action = ProjectorActionB;
 				MyAPIGateway.TerminalControls.AddControl<IMyProjector>(projectorButtonB);
+
+				var actionAssembleAll = MyAPIGateway.TerminalControls.CreateAction<IMyProjector>("AssembleAll");
+				actionAssembleAll.Action = ProjectorAction;
+				actionAssembleAll.Name = new StringBuilder("Assemble all parts");
+				actionAssembleAll.Writer = (block, builder) => builder.Append("All");
+				MyAPIGateway.TerminalControls.AddAction<IMyProjector>(actionAssembleAll);
+
+				var actionAssembleMissing = MyAPIGateway.TerminalControls.CreateAction<IMyProjector>("AssembleMissing");
+				actionAssembleMissing.Action = ProjectorActionB;
+				actionAssembleMissing.Name = new StringBuilder("Assemble missing parts");
+				actionAssembleMissing.Writer = (block, builder) => builder.Append("Missing");
+				MyAPIGateway.TerminalControls.AddAction<IMyProjector>(actionAssembleMissing);
 
 				MyDefinitionManager.Static.GetBlueprintDefinitions()
 					.Where(x => x.Results[0].Id.TypeId != typeof(MyObjectBuilder_Ore))
