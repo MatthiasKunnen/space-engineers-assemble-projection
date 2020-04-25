@@ -125,29 +125,35 @@ namespace MeridiusIX {
 
 		void ProcessProjection(IMyTerminalBlock block, bool allBlocks) {
 			var projector = block as IMyProjector;
+			string selectedAssembler;
+			projector.Storage.TryGetValue(storageKey, out selectedAssembler);
+			ProcessProjection(projector, selectedAssembler, allBlocks);
+		}
 
-			if (projector == null || block.IsWorking == false || projector.ProjectedGrid == null) {
+		void ProcessProjection(IMyProjector projector, string assemblerName, bool allBlocks) {
+			if (projector == null || projector.IsWorking == false || projector.ProjectedGrid == null) {
 				return;
 			}
 
-			var cubeGrid = block.CubeGrid;
+			var cubeGrid = projector.CubeGrid;
 			var gts = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(cubeGrid);
 			var assemblerList = new List<IMyAssembler>();
 			gts.GetBlocksOfType<IMyAssembler>(assemblerList);
-			block.Storage.TryGetValue(storageKey, out string selectedAssembler);
 
 			var primaryAssembler = assemblerList.FirstOrDefault(assembler => {
-				return assembler.IsWorking && assembler.IsFunctional && assembler.Mode != Sandbox.ModAPI.Ingame.MyAssemblerMode.Disassembly && selectedAssembler == assembler.EntityId.ToString();
+				return assembler.IsWorking && assembler.IsFunctional && assembler.Mode != Sandbox.ModAPI.Ingame.MyAssemblerMode.Disassembly && assemblerName == assembler.EntityId.ToString();
 			});
 
-			if (primaryAssembler == null) {
-				return;
+			if (primaryAssembler != null) {
+				ProcessProjection(primaryAssembler, projector, allBlocks);
 			}
+		}
 
+		void ProcessProjection(IMyAssembler assembler, IMyProjector projector, bool allBlocks) {
 			var queueDictionary = GetBlocksForQueue(projector, allBlocks);
 
 			if (allBlocks == false) {
-				var existingParts = GetExistingParts(primaryAssembler);
+				var existingParts = GetExistingParts(assembler);
 
 				foreach (var component in existingParts.Keys) {
 					if (queueDictionary.ContainsKey(component) == true) {
@@ -166,8 +172,8 @@ namespace MeridiusIX {
 
 					if (MyDefinitionId.TryParse("MyObjectBuilder_BlueprintDefinition/" + blueprintDictionary[component], out blueprint) == true) {
 
-						if (primaryAssembler.CanUseBlueprint(blueprint) == true) {
-							primaryAssembler.AddQueueItem(blueprint, (MyFixedPoint)queueDictionary[component]);
+						if (assembler.CanUseBlueprint(blueprint) == true) {
+							assembler.AddQueueItem(blueprint, (MyFixedPoint)queueDictionary[component]);
 						}
 					}
 				}
