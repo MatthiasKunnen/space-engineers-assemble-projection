@@ -55,12 +55,14 @@ namespace MeridiusIX {
 
 				var actionAssembleAll = MyAPIGateway.TerminalControls.CreateAction<IMyProjector>("AssembleAll");
 				actionAssembleAll.Action = ProjectorAction;
+				actionAssembleAll.Icon = $"{ModContext.ModPath}\\Textures/Icons/assemble-all.png";
 				actionAssembleAll.Name = new StringBuilder("Assemble all parts");
 				actionAssembleAll.Writer = (block, builder) => builder.Append("All");
 				MyAPIGateway.TerminalControls.AddAction<IMyProjector>(actionAssembleAll);
 
 				var actionAssembleMissing = MyAPIGateway.TerminalControls.CreateAction<IMyProjector>("AssembleMissing");
 				actionAssembleMissing.Action = ProjectorActionB;
+				actionAssembleMissing.Icon = $"{ModContext.ModPath}\\Textures/Icons/assemble-missing.png";
 				actionAssembleMissing.Name = new StringBuilder("Assemble missing parts");
 				actionAssembleMissing.Writer = (block, builder) => builder.Append("Missing");
 				MyAPIGateway.TerminalControls.AddAction<IMyProjector>(actionAssembleMissing);
