@@ -146,10 +146,11 @@ namespace MeridiusIX {
 			var projector = block as IMyProjector;
 			string selectedAssembler;
 			projector.Storage.TryGetValue(storageKey, out selectedAssembler);
-			ProcessProjection(projector, selectedAssembler, allBlocks);
+
+			ProcessProjection(projector, new string[] { projector.CustomData, selectedAssembler }, allBlocks);
 		}
 
-		void ProcessProjection(IMyProjector projector, string assemblerName, bool allBlocks) {
+		void ProcessProjection(IMyProjector projector, string[] assemblerNames, bool allBlocks) {
 			if (projector == null || projector.IsWorking == false || projector.ProjectedGrid == null) {
 				return;
 			}
@@ -159,9 +160,23 @@ namespace MeridiusIX {
 			var assemblerList = new List<IMyAssembler>();
 			gts.GetBlocksOfType<IMyAssembler>(assemblerList);
 
-			var primaryAssembler = assemblerList.FirstOrDefault(assembler => {
-				return assembler.IsWorking && assembler.IsFunctional && assembler.Mode != Sandbox.ModAPI.Ingame.MyAssemblerMode.Disassembly && assemblerName == assembler.EntityId.ToString();
-			});
+			// Find first assembler matching the given names
+			var primaryAssembler = assemblerNames
+				.Select(assemblerName => {
+					if (String.IsNullOrWhiteSpace(assemblerName)) {
+						return null;
+					}
+
+					return assemblerList
+						.Where(assembler => {
+							return assembler.IsWorking
+								&& assembler.IsFunctional
+								&& assembler.Mode != Sandbox.ModAPI.Ingame.MyAssemblerMode.Disassembly
+								&& (assemblerName == assembler.CustomName || assemblerName == assembler.EntityId.ToString());
+						})
+						.FirstOrDefault();
+				})
+				.FirstOrDefault(assembler => assembler != null);
 
 			if (primaryAssembler != null) {
 				ProcessProjection(primaryAssembler, projector, allBlocks);
