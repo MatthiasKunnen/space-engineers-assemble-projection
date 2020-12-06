@@ -9,7 +9,7 @@ root = true
 indent_style = tab
 
 # New line preferences
-end_of_line = crlf
+end_of_line = lf
 insert_final_newline = true
 
 #### .NET Coding Conventions ####
