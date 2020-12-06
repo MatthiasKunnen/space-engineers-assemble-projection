@@ -67,11 +67,19 @@ namespace MeridiusIX {
 				actionAssembleMissing.Writer = (block, builder) => builder.Append("Missing");
 				MyAPIGateway.TerminalControls.AddAction<IMyProjector>(actionAssembleMissing);
 
-				MyDefinitionManager.Static.GetBlueprintDefinitions()
-					.Where(x => x.Results[0].Id.TypeId != typeof(MyObjectBuilder_Ore))
-					.Where(blueprint => blueprint.Results[0].Id.TypeId.ToString().Contains("MyObjectBuilder_Component"))
-					.ToList()
-					.ForEach(blueprint => blueprintDictionary[blueprint.Results[0].Id.SubtypeId.ToString()] = blueprint.Id.SubtypeId.ToString());
+				var blueprintList = MyDefinitionManager.Static.GetBlueprintDefinitions();
+
+				foreach (var blueprint in blueprintList) {
+					if (blueprint.Results.Length == 0)
+						continue;
+
+					if (blueprint.Results[0].Id.TypeId != typeof(MyObjectBuilder_Component))
+						continue;
+
+					if (!blueprintDictionary.ContainsKey(blueprint.Results[0].Id.SubtypeName)) {
+						blueprintDictionary.Add(blueprint.Results[0].Id.SubtypeName, blueprint.Id.SubtypeName);
+					}
+				}
 
 				entity.Delete();
 				scriptInitialized = true;
@@ -186,12 +194,14 @@ namespace MeridiusIX {
 		}
 
 		Dictionary<string, int> GetBlocksForQueue(IMyProjector projector, bool allBlocks) {
+
 			var resultDictionary = new Dictionary<string, int>();
 			var projectedGrid = projector.ProjectedGrid;
 			var blockList = new List<IMySlimBlock>();
 			projectedGrid.GetBlocks(blockList);
 
 			foreach (var block in blockList) {
+
 				var blockDefininition = block.BlockDefinition as MyCubeBlockDefinition;
 				var blockcomponents = blockDefininition.Components;
 
@@ -200,10 +210,10 @@ namespace MeridiusIX {
 				}
 
 				foreach (var component in blockcomponents) {
-					if (resultDictionary.ContainsKey(component.Definition.Id.SubtypeId.ToString()) == true) {
-						resultDictionary[component.Definition.Id.SubtypeId.ToString()] += component.Count;
+					if (resultDictionary.ContainsKey(component.Definition.Id.SubtypeName) == true) {
+						resultDictionary[component.Definition.Id.SubtypeName] += component.Count;
 					} else {
-						resultDictionary.Add(component.Definition.Id.SubtypeId.ToString(), component.Count);
+						resultDictionary.Add(component.Definition.Id.SubtypeName, component.Count);
 					}
 				}
 			}
